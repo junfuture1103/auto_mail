@@ -37,24 +37,28 @@ msg_dict = {
     'application': {'maintype': 'application', 'subtype': 'octect-stream', 'filename': 'test.pdf'}
 }
 
-reciever_name = []
-reciever_mail = []
+reciever = {"이준학": "gygh75@naver.com",
+            "김승주": "junhak1103@naver.com"}
 
-wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
-ws = wb.active
+# reciever_name = ["이준학", "김승주"]
+# reciever_mail = ["gygh75@naver.com", "junhak1103@naver.com"]
 
-for col in ws.iter_rows():
-    index = 0
-    for cell in col:
-        if(index == 1):
-            reciever_mail.append(cell.value)
-        else:
-            reciever_name.append(cell.value)
-        print(cell.value)
-        index = index+1
+# 엑셀에서 메일 읽어오기
+# wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
+# ws = wb.active
 
-print(reciever_name)
-print(reciever_mail)
+# for col in ws.iter_rows():
+#     index = 0
+#     for cell in col:
+#         if(index == 1):
+#             reciever_mail.append(cell.value)
+#         else:
+#             reciever_name.append(cell.value)
+#         print(cell.value)
+#         index = index+1
+
+# print(reciever_name)
+# print(reciever_mail)
 
 
 def make_multimsg(msg_dict):
@@ -85,49 +89,52 @@ def make_multimsg(msg_dict):
     return multi
 
 
-# 보내는 사람('이름', '메일 주소')
-from_addr = formataddr(('UN사무총장', 'test@kshield.com'))
-to_addr = formataddr(('Naver Dochi', 'gygh75@naver.com'))
+for name, email in reciever.items():
+    try:
+        session = None
+        # SMTP 세션 생성
+        session = smtplib.SMTP('smtp.gmail.com', 587)
+        # debug 내용 보고 싶으면 True로
+        session.set_debuglevel(False)
 
-session = None
-try:
-    # SMTP 세션 생성
-    session = smtplib.SMTP('smtp.gmail.com', 587)
-    # debug 내용 보고 싶으면 True로
-    session.set_debuglevel(False)
+        # SMTP 계정 인증 설정
+        session.ehlo()
+        session.starttls()
+        session.login('gygh7562@gmail.com', 'wbfrncdwtwqxzwrz')
 
-    # SMTP 계정 인증 설정
-    session.ehlo()
-    session.starttls()
-    session.login('gygh7562@gmail.com', 'wbfrncdwtwqxzwrz')
+        # 보내는 사람('이름', '메일 주소')
+        from_addr = formataddr(('UN사무총장', 'test@kshield.com'))
+        to_addr = formataddr((name, email))
+        print("from_addr : "+from_addr)
+        print("to_addr : "+to_addr)
 
-    # 메일 콘텐츠 설정
-    message = MIMEMultipart("alternative")
-    message.set_charset('utf-8')
+        # 메일 콘텐츠 설정
+        message = MIMEMultipart("alternative")
+        message.set_charset('utf-8')
 
-    # 메일 송/수신 옵션 설정
-    message['From'] = from_addr
-    message['To'] = to_addr
-    message['Subject'] = '안녕하세요 보안방역반입니다.'
+        # 메일 송/수신 옵션 설정
+        message['From'] = from_addr
+        message['To'] = to_addr
+        message['Subject'] = '안녕하세요 보안방역반입니다.'
 
-    # 첨부파일 넣기
-    multi = make_multimsg(msg_dict)
-    message.attach(multi)
+        # 첨부파일 넣기
+        multi = make_multimsg(msg_dict)
+        message.attach(multi)
 
-    # 메일 콘텐츠 - 내용
-    body = '''
-        <h2>안녕하세요.</h1>
-        <h4>juntheworld입니다.</h1>
-        '''
-    bodyPart = MIMEText(body, 'html', 'utf-8')
-    message.attach(bodyPart)
+        # 메일 콘텐츠 - 내용
+        body = '''
+                <h1>hi juntheworld</h1>
+                <a href = "www.facebook.com">go to facebook</a>
+                '''
+        bodyPart = MIMEText(body, 'html', 'utf-8')
+        message.attach(bodyPart)
 
-    # 메일 발송
-    session.sendmail('test@kshield.com', to_addr, message.as_string())
-    print('Successfully sent the mail!!!')
+        # 메일 발송
+        session.sendmail("jun", to_addr, message.as_string())
+        print('Successfully sent the mail!!!')
 
-except Exception as e:
-    print(e)
-finally:
-    if session is not None:
-        session.quit()
+    except Exception as e:
+        print(e)
+    finally:
+        if session is not None:
+            session.quit()
