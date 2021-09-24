@@ -37,28 +37,25 @@ msg_dict = {
     'application': {'maintype': 'application', 'subtype': 'octect-stream', 'filename': 'test.pdf'}
 }
 
-reciever = {"이준학": "gygh75@naver.com",
-            "김승주": "junhak1103@naver.com"}
-
-# reciever_name = ["이준학", "김승주"]
-# reciever_mail = ["gygh75@naver.com", "junhak1103@naver.com"]
+reciever = {}
 
 # 엑셀에서 메일 읽어오기
-# wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
-# ws = wb.active
+wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
+ws = wb.active
 
-# for col in ws.iter_rows():
-#     index = 0
-#     for cell in col:
-#         if(index == 1):
-#             reciever_mail.append(cell.value)
-#         else:
-#             reciever_name.append(cell.value)
-#         print(cell.value)
-#         index = index+1
+for col in ws.iter_rows():
+    index = 0
+    for cell in col:
+        if(index == 0):
+            # 첫번째 나오는아이 -> 이름 (엑셀에서 이름, 메일 순서로 받아옴) -> 딕셔너리 key로 만듬
+            tmp_key = cell.value
+        else:
+            # 두번째 나오는 아이 -> 메일 -> 딕셔너리에 value로 들어감
+            reciever[tmp_key] = cell.value
+        print(cell.value)
+        index = index+1
 
-# print(reciever_name)
-# print(reciever_mail)
+print(reciever)
 
 
 def make_multimsg(msg_dict):
