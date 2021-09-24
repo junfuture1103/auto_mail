@@ -2,6 +2,9 @@
 import os
 import smtplib
 
+# 엑셀 다루기
+from openpyxl import load_workbook
+
 # 이메일 메시지를 이진 데이터로 바꿔주는 인코더
 from email import encoders
 
@@ -33,6 +36,25 @@ msg_dict = {
     # 그외 첨부파일
     'application': {'maintype': 'application', 'subtype': 'octect-stream', 'filename': 'test.pdf'}
 }
+
+reciever_name = []
+reciever_mail = []
+
+wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
+ws = wb.active
+
+for col in ws.iter_rows():
+    index = 0
+    for cell in col:
+        if(index == 1):
+            reciever_mail.append(cell.value)
+        else:
+            reciever_name.append(cell.value)
+        print(cell.value)
+        index = index+1
+
+print(reciever_name)
+print(reciever_mail)
 
 
 def make_multimsg(msg_dict):
@@ -67,13 +89,12 @@ def make_multimsg(msg_dict):
 from_addr = formataddr(('UN사무총장', 'test@kshield.com'))
 to_addr = formataddr(('Naver Dochi', 'gygh75@naver.com'))
 
-reciever = [{'junjun'}]
-
 session = None
 try:
     # SMTP 세션 생성
     session = smtplib.SMTP('smtp.gmail.com', 587)
-    session.set_debuglevel(True)
+    # debug 내용 보고 싶으면 True로
+    session.set_debuglevel(False)
 
     # SMTP 계정 인증 설정
     session.ehlo()
