@@ -1,6 +1,7 @@
 # send_plain.py
 import os
 import smtplib
+import pymysql
 
 # 엑셀 다루기
 from openpyxl import load_workbook
@@ -39,21 +40,42 @@ msg_dict = {
 
 reciever = {}
 
-# 엑셀에서 메일 읽어오기
-wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
-ws = wb.active
+# DB에서 이름 메일 읽어오기
+connection = pymysql.connect(
+    host='155.230.52.54',
+    user='ksj',
+    password='qhdks!321',
+    db='WebProject',
+    charset='utf8'
+)
 
-for col in ws.iter_rows():
-    index = 0
-    for cell in col:
-        if(index == 0):
-            # 첫번째 나오는아이 -> 이름 (엑셀에서 이름, 메일 순서로 받아옴) -> 딕셔너리 key로 만듬
-            tmp_key = cell.value
-        else:
-            # 두번째 나오는 아이 -> 메일 -> 딕셔너리에 value로 들어감
-            reciever[tmp_key] = cell.value
-        print(cell.value)
-        index = index+1
+cursor = connection.cursor(pymysql.cursors.DictCursor)
+sql = "select * from import_company"
+
+cursor.execute(sql)
+rows = cursor.fetchall()
+
+for row in rows:
+    print(row['name']+':'+row['email'])
+    reciever[row['name']] = row['email']
+connection.close()
+print('MySQL 커넥션 종료')
+
+# (legacy)엑셀에서 이름 메일 읽어오기
+# wb = load_workbook('reciever.xlsx', data_only=True, read_only=True)
+# ws = wb.active
+
+# for col in ws.iter_rows():
+#     index = 0
+#     for cell in col:
+#         if(index == 0):
+#             # 첫번째 나오는아이 -> 이름 (엑셀에서 이름, 메일 순서로 받아옴) -> 딕셔너리 key로 만듬
+#             tmp_key = cell.value
+#         else:
+#             # 두번째 나오는 아이 -> 메일 -> 딕셔너리에 value로 들어감
+#             reciever[tmp_key] = cell.value
+#         print(cell.value)
+#         index = index+1
 
 print(reciever)
 
