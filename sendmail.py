@@ -32,14 +32,15 @@ msg_dict = {
     # 비디오 첨부파일
     # 'video': {'maintype': 'video', 'subtype': 'mp4', 'filename': 'test.mp4'},
     # 그외 첨부파일
-    'application': {'maintype': 'application', 'subtype': 'octect-stream', 'filename': 'test.pdf'}
+    # 'application': {'maintype': 'application', 'subtype': 'octect-stream', 'filename': 'client.exe'}
 }
 
 reciever = {}
 
 # DB에서 이름 메일 읽어오기
 connection = pymysql.connect(
-    host='155.230.52.54',
+    host='localhost',
+    # host='155.230.52.54',
     user='ksj',
     password='qhdks!321',
     db='WebProject',
@@ -53,11 +54,12 @@ cursor.execute(sql)
 rows = cursor.fetchall()
 
 for row in rows:
-    print(row['name']+':'+row['email'])
     reciever[row['name']] = row['email']
 connection.close()
 
-print(reciever)
+# for test
+# reciever['이준학'] = "gygh75@naver.com"
+# print(reciever)
 
 def make_multimsg(msg_dict):
     multi = MIMEMultipart(_subtype='mixed')
@@ -123,13 +125,14 @@ for name, email in reciever.items():
         body = '''
                 <h1>hi juntheworld</h1>
                 <a href = "www.facebook.com">go to facebook</a>
-                '''
+
+        '''
         bodyPart = MIMEText(body, 'html', 'utf-8')
         message.attach(bodyPart)
 
         # 메일 발송
         session.sendmail("jun", to_addr, message.as_string())
-        print('Successfully sent the mail!!!')
+        print('Successfully sent the mail!!!\n')
 
     except Exception as e:
         print(e)
